@@ -113,7 +113,7 @@ clean_gpu()
 
 build_kernel()
 {
-    echo "Building kernel"
+    echo "Building kernel use config [${LICHEE_KERN_DEFCONF}]"
 
     cd ${LICHEE_KDIR}
 
@@ -121,13 +121,20 @@ build_kernel()
     echo "${LICHEE_MOD_DIR}"
     mkdir -p ${LICHEE_MOD_DIR}
 
-    # We need to copy rootfs files to compile kernel for linux image
+    # looking for rootfs that build for image
+    if [ ! -f ${LICHEE_KDIR}/../rootfs/rootfs.cpio.gz ]; then
+        echo "Look for rootfs [lichee/rootfs/rootfs.cpio.gz] but it is not there"
+        exit -1
+    fi
+
 	echo "lichee_chip = $LICHEE_CHIP"
 	if [ "${LICHEE_CHIP}" = "sun8iw10p1" ] || [ "${LICHEE_CHIP}" = "sun8iw11p1" ]; then
 		echo "cp rootfs_32bit.cpio.gz"
 		cp -f rootfs_32bit.cpio.gz output/rootfs.cpio.gz
 	else
-		cp -f rootfs.cpio.gz output/
+		# move rootfs out of kernel source cause rootfs are not part of source code
+		# instead it can be found with a fixed path
+		cp -f ${LICHEE_KDIR}/../rootfs/rootfs.cpio.gz output/
 	fi
 	#exchange sdc0 and sdc2 in sun50iw1p1 for dragonBoard card boot
 	if [ "x${LICHEE_PLATFORM}" = "xdragonboard"  -a "x${LICHEE_CHIP}" = "xsun50iw1p1" ]; then
