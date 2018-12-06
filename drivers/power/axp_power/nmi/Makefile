@@ -1,0 +1,1 @@
+obj-$(CONFIG_AXP_NMI_USED) += sunxi-nmi.o
